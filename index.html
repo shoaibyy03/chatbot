@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Interface</title>
+    <script>
+        async function askQuestion() {
+            const question = document.getElementById('question').value;
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ question: question })
+            });
+            const data = await response.json();
+            document.getElementById('response').innerText = data.answer;
+            if (data.answer.includes("I don't know the answer")) {
+                document.getElementById('expected-answer-form').style.display = 'block';
+            } else {
+                document.getElementById('expected-answer-form').style.display = 'none';
+            }
+        }
+
+        async function provideAnswer() {
+            const question = document.getElementById('question').value;
+            const answer = document.getElementById('expected-answer').value;
+            await fetch('/learn', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ question: question, answer: answer })
+            });
+            document.getElementById('expected-answer-form').style.display = 'none';
+            document.getElementById('response').innerText = 'Thank you! I have learned the new answer.';
+        }
+    </script>
+</head>
+<body>
+    <h1>PAKISTAN Chatbot</h1>
+    <div>
+        <label for="question">Ask a question:</label>
+        <input type="text" id="question" name="question">
+        <button onclick="askQuestion()">Submit</button>
+    </div>
+    <div>
+        <p id="response"></p>
+    </div>
+    <div id="expected-answer-form" style="display: none;">
+        <label for="expected-answer">Provide the expected answer:</label>
+        <input type="text" id="expected-answer" name="expected-answer">
+        <button onclick="provideAnswer()">Submit Answer</button>
+    </div>
+</body>
+</html>
